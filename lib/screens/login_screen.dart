@@ -50,7 +50,6 @@ Widget build(BuildContext context) {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) return 'Введите email';
-                      if (!value.contains('@')) return 'Введите корректный email';
                       return null;
                     },
                   ),
@@ -135,10 +134,16 @@ Widget build(BuildContext context) {
         _emailController.text.trim(),
         _passwordController.text.trim(),
       );
-      
-      // После успешного входа - переход на главный экран
-      if (mounted) {
+      print(auth.toString());
+
+      // Проверяем, что токен получен и сохранен
+      if (auth.token != null) {
         Navigator.pushReplacementNamed(context, '/home');
+      } else {
+        // Обработка ошибки, если токен не получен
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Ошибка входа: не удалось получить токен')),
+        );
       }
     }
   }

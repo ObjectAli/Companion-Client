@@ -17,6 +17,7 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => AuthModel(),
       child: MaterialApp(
+        debugShowCheckedModeBanner: false, // Отключает баннер DEBUG
         title: 'Evently',
         theme: ThemeData(
           primarySwatch: Colors.blue,
