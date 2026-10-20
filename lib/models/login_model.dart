@@ -5,7 +5,7 @@ import '../config/app_config.dart';
 
 
 
-class AuthModel extends ChangeNotifier {
+class LoginModel extends ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
