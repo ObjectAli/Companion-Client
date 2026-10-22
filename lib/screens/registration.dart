@@ -387,7 +387,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                                   .primaryBlackSea,
                                               disabledBackgroundColor:
                                                   AppColors.primaryBlackSea
-                                                      .withOpacity(0.6),
+                                                      .withValues(alpha: 0.6),
                                               shape:
                                                   RoundedRectangleBorder(
                                                 borderRadius:
