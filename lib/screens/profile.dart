@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../config/app_config.dart';
 import '../config/app_colors.dart';
+import '../widgets/bottom_menu.dart';
+
+import 'dart:ui';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -10,63 +13,86 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      // 1. Убираем SafeArea, чтобы градиент был под статус-баром
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: AppConfig.maxWidth),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return SingleChildScrollView(
-                // 2. Используем ConstrainedBox, чтобы растянуть контент на всю высоту
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                  child: IntrinsicHeight(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        // --- 1. ШАПКА ПРОФИЛЯ ---
-                        _buildHeader(),
+      body: Stack(
+        children: [
+          // 1. ОСНОВНОЙ КОНТЕНТ
+          SafeArea(
+            bottom: false,
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: AppConfig.maxWidth),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return SingleChildScrollView(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: constraints.maxHeight,
+                        ),
+                        child: IntrinsicHeight(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              // --- 1. ШАПКА ПРОФИЛЯ ---
+                              _buildHeader(),
 
-                        const SizedBox(height: 20),
+                              const SizedBox(height: 20),
 
-                        // --- 2. СТАТИСТИКА ---
-                        _buildStats(),
+                              // --- 2. СТАТИСТИКА ---
+                              _buildStats(),
 
-                        const SizedBox(height: 20),
+                              const SizedBox(height: 20),
 
-                        // --- 3. СПИСОК НАСТРОЕК ---
-                        _buildSettingsList(context),
+                              // --- 3. СПИСОК НАСТРОЕК ---
+                              _buildSettingsList(context),
 
-                        // 3. SPACER прижимает "Log Out" к низу, если есть свободное место
-                        const Spacer(),
-
-                        // --- 4. КНОПКА ВЫХОДА ---
-                        _buildLogoutButton(context),
-
-                        const SizedBox(height: 30), // Отступ от низа экрана
-                      ],
-                    ),
-                  ),
+                              // Отступ снизу, чтобы последний элемент не прятался за меню
+                              const SizedBox(height: 120),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 ),
-              );
-            },
+              ),
+            ),
           ),
-        ),
+
+          // 2. ПАРЯЩЕЕ МЕНЮ
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: AppConfig.maxWidth),
+                child: BottomNavBar(
+                  currentIndex: 4, // Индекс "Профиль" (5-я вкладка)
+                  onTap: (index) {
+                    if (index == 4) return;
+                    final route = BottomNavBar.items[index]['route'] as String;
+                    Navigator.pushNamed(context, route);
+                  },
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
   // ==================== ВИДЖЕТЫ ====================
 
-  /// Шапка с градиентом, аватаром и именем
   Widget _buildHeader() {
     return Container(
-      height: 320,
+      height: 240, // Чуть больше по высоте, как вы просили
       decoration: const BoxDecoration(
+        // Оставляем градиент как фон
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [AppColors.primaryPurple, AppColors.primaryBlue],
+          colors: [AppColors.primaryBlackSea, AppColors.primaryBlue],
         ),
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(30),
@@ -74,107 +100,172 @@ class ProfileScreen extends StatelessWidget {
         ),
       ),
       child: Stack(
-        alignment: Alignment.center,
         children: [
-          // Декоративные круги на фоне (для стиля)
+          // 1. Декоративные круги на фоне (чтобы стекло было заметнее)
           Positioned(
-            top: -50,
-            right: -50,
-            child: Container(
-              width: 200,
-              height: 200,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.primaryBlackSea.withOpacity(0.3),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: -30,
-            left: -30,
+            top: -40,
+            right: -20,
             child: Container(
               width: 180,
               height: 180,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.orange.withOpacity(0.1),
+                color: Colors.white.withOpacity(0.1),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: -40,
+            left: 40,
+            child: Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.primaryBlue.withOpacity(0.3),
               ),
             ),
           ),
 
-          // Контент шапки
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Аватар
-              Container(
-                padding: const EdgeInsets.all(4), //Обводка
-                decoration: const BoxDecoration(
-                  color: AppColors.primaryBlackSea,
-                  shape: BoxShape.circle,
-                ),
-                child: const CircleAvatar(
-                  radius: 85,
-                  backgroundColor: Color(0xFFE0E0E0), // Светло-серый фон
-                  child: Icon(
-                    Icons.person,
-                    size: 90, // Размер иконки
-                    color: AppColors.primaryBlackSea, // Темно-синий цвет иконки
-                  ),
-                ),
-              ),
-              const SizedBox(height: 15),
+          // 2. Стеклянная карточка
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(24),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(
+                    sigmaX: 10,
+                    sigmaY: 10,
+                  ), // Сила размытия
+                  child: Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(
+                        0.15,
+                      ), // Полупрозрачный белый
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(
+                          0.2,
+                        ), // Тонкая светлая рамка
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        // --- ЛЕВАЯ ЧАСТЬ: Аватар ---
+                        Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 2),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.2),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: const CircleAvatar(
+                            radius: 40,
+                            backgroundColor: Color(0xFFE0E0E0),
+                            child: Icon(
+                              Icons.person,
+                              size: 45,
+                              color: AppColors.primaryBlackSea,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
 
-              // Имя
-              const Text(
-                'Alex Rivers',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w900,
-                  color: Colors.white, // Темно-синий
-                ),
-              ),
-              const SizedBox(height: 5),
+                        // --- ЦЕНТР: Имя и статус ---
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Text(
+                                'Али Норбобаев',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                                maxLines:
+                                    2, // <--- РАЗРЕШАЕМ ПЕРЕНОС НА 2 СТРОКИ
+                                overflow: TextOverflow
+                                    .ellipsis, // Если не влезет даже в 2 строки
+                              ),
+                              const SizedBox(height: 6),
+                              // Бейдж Premium
+                              Row(
+                                children: [
+                                  const Icon(
+                                    Icons.workspace_premium,
+                                    color: AppColors.yellow,
+                                    size: 18,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'Премиум',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.white.withOpacity(0.9),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
 
-              // Бейдж "Premium-подписка"
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    Icons.workspace_premium,
-                    color: Color.fromARGB(255, 231, 209, 3),
-                    size: 25,
-                  ),
-                  const SizedBox(width: 5),
-                  Text(
-                    'Premium',
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: const Color.fromARGB(255, 231, 209, 3),
-                      fontWeight: FontWeight.w500,
+                        // --- ПРАВАЯ ЧАСТЬ: Кнопка редактирования ---
+                        IconButton(
+                          onPressed: () {
+                            // TODO: Переход на редактирование профиля
+                          },
+                          icon: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.3),
+                              ),
+                            ),
+                            child: const Icon(
+                              Icons.edit_outlined,
+                              size: 16,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
+                ),
               ),
-            ],
+            ),
           ),
         ],
       ),
     );
   }
 
-  /// Блок со статистикой (24, 128, 12k)
+  /// Блок со статистикой (24, 10, 5)
   Widget _buildStats() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _buildStatItem('24', 'Организовал'),
+          Expanded(child: _buildStatItem('24', 'Провёл')),
           _buildVerticalDivider(),
-          _buildStatItem('128', 'Принял'),
+          Expanded(child: _buildStatItem('10', 'Посетил')),
           _buildVerticalDivider(),
-          _buildStatItem('12', 'Звёзд'),
+          Expanded(child: _buildStatItem('5', 'Звёзд')),
         ],
       ),
     );
@@ -182,128 +273,143 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _buildStatItem(String value, String label) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Text(
           value,
           style: const TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,
-            color: Color(0xFF0B1B4D),
+            color: AppColors.primaryBlackSea,
           ),
         ),
         const SizedBox(height: 4),
-        Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+        Text(
+          label,
+          textAlign: TextAlign.center,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(fontSize: 11, color: Colors.grey),
+        ),
       ],
     );
   }
 
   Widget _buildVerticalDivider() {
-    return Container(height: 30, width: 1, color: Colors.grey.shade300);
+    return Container(height: 40, width: 1, color: Colors.grey.shade300);
   }
 
-  /// Список настроек (My Interests, Account Settings...)
+  /// Список настроек — теперь в виде карточек, как в ленте
   Widget _buildSettingsList(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: Column(
         children: [
-          _buildSettingRow(
+          _buildSettingCard(
             context: context,
             title: 'Мои интересы',
-            onTap: () {
-              Navigator.pushNamed(context, '/interests');
-            },
+            icon: Icons.favorite_border,
+            onTap: () => Navigator.pushNamed(context, '/interests'),
           ),
-          const SizedBox(height: 10),
-          _buildSettingRow(
+          const SizedBox(height: 12),
+          _buildSettingCard(
             context: context,
             title: 'Мои мероприятия',
-            onTap: () {
-              Navigator.pushNamed(context, '/my_events'); // <--- Свой переход
-            },
+            icon: Icons.event_note_outlined,
+            onTap: () => Navigator.pushNamed(context, '/my_events'),
           ),
-          const SizedBox(height: 10),
-          _buildSettingRow(
+          const SizedBox(height: 12),
+          _buildSettingCard(
             context: context,
             title: 'Настройки аккаунта',
-            onTap: () {
-              Navigator.pushNamed(
-                context,
-                '/account_settings',
-              ); // <--- Свой переход
-            },
+            icon: Icons.settings_outlined,
+            onTap: () => Navigator.pushNamed(context, '/account_settings'),
+          ),
+          const SizedBox(height: 12),
+          _buildSettingCard(
+            context: context,
+            title: 'Выход',
+            icon: Icons.logout,
+            isDestructive: true, // Красный цвет для выхода
+            onTap: () => Navigator.pushNamed(context, '/logout'),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSettingRow({
+  /// Карточка одного пункта меню
+  Widget _buildSettingCard({
     required BuildContext context,
     required String title,
-    required VoidCallback onTap, // <--- Колбэк для перехода
+    required IconData icon,
+    required VoidCallback onTap,
+    bool isDestructive = false,
   }) {
+    final color = isDestructive
+        ? AppColors.burgundi
+        : AppColors.primaryBlackSea;
+    final bgColor = isDestructive
+        ? AppColors.burgundi.withOpacity(0.08)
+        : Colors.white;
+
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 4.0),
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isDestructive
+                ? AppColors.burgundi.withOpacity(0.2)
+                : const Color(0xFFE0E0E0),
+            width: 1,
+          ),
+          boxShadow: isDestructive
+              ? null
+              : [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.03),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+        ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF0B1B4D),
+            // Иконка
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(icon, color: color, size: 22),
+            ),
+            const SizedBox(width: 14),
+
+            // Текст
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: color,
+                ),
               ),
             ),
-            const Icon(
+
+            // Стрелка
+            Icon(
               Icons.arrow_forward_ios,
-              size: 16,
-              color: AppColors.primaryBlackSea,
+              size: 14,
+              color: color.withOpacity(0.5),
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  /// Кнопка выхода (Log Out)
-  Widget _buildLogoutButton(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-      child: InkWell(
-        onTap: () {
-          // TODO: Логика выхода
-        },
-        borderRadius: BorderRadius.circular(12),
-        child:
-            // Текст
-            SizedBox(
-              height: 55,
-              child: ElevatedButton(
-                onPressed: () {
-                  // TODO: Переход на восстановление пароля
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryBlackSea,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  elevation: 0,
-                ),
-                child: const Text(
-                  'Выход',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
       ),
     );
   }
