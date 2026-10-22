@@ -21,31 +21,31 @@ class BottomNavBar extends StatelessWidget {
       'icon': Icons.format_list_bulleted_outlined,
       'activeIcon': Icons.format_list_bulleted,
       'label': 'Лента',
-      'route': '/feed', // <--- Добавлен маршрут
+      'route': '/feed',
     },
     {
       'icon': Icons.place_outlined,
       'activeIcon': Icons.place,
       'label': 'Карта',
-      'route': '/map', // <--- Добавлен маршрут
+      'route': '/map',
     },
     {
       'icon': Icons.add,
       'activeIcon': Icons.add,
       'label': 'Создать',
-      'route': '/create', // <--- Добавлен маршрут
+      'route': '/create',
     },
     {
       'icon': Icons.calendar_month_outlined,
       'activeIcon': Icons.calendar_month,
       'label': 'График',
-      'route': '/my', // <--- Добавлен маршрут
+      'route': '/my',
     },
     {
       'icon': Icons.person_outline,
       'activeIcon': Icons.person,
       'label': 'Профиль',
-      'route': '/profile', // <--- Добавлен маршрут
+      'route': '/profile',
     },
   ];
 
@@ -61,7 +61,7 @@ class BottomNavBar extends StatelessWidget {
           borderRadius: BorderRadius.circular(30),
           boxShadow: [
             BoxShadow(
-              color: AppColors.primaryBlue.withOpacity(0.5), // Мягкая тень
+              color: AppColors.primaryBlue.withValues(alpha: 0.5), // Мягкая тень
               blurRadius: 20, // Небольшое размытие
               offset: const Offset(0, 5), // Смещение чуть ниже панели
             ),
@@ -83,7 +83,7 @@ class BottomNavBar extends StatelessWidget {
                 ),
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? AppColors.primaryBlue.withOpacity(0.1)
+                      ? AppColors.primaryBlue.withValues(alpha: 0.1)
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(25),
                 ),

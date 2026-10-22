@@ -145,8 +145,9 @@ class _FeedScreenState extends State<FeedScreen> {
                 child: BottomNavBar(
                   currentIndex: _navIndex,
                   onTap: (index) {
-                    if (index == _navIndex)
+                    if (index == _navIndex) {
                       return; // Уже на этой вкладке — ничего не делаем
+                    }
                     setState(() => _navIndex = index);
                     Navigator.pushNamed(
                       context,
@@ -272,7 +273,7 @@ class _FeedScreenState extends State<FeedScreen> {
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         itemCount: _filters.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
           final isSelected = _selectedFilter == index;
           return GestureDetector(
@@ -333,7 +334,7 @@ class _FeedScreenState extends State<FeedScreen> {
             image: NetworkImage(event.imageUrl),
             fit: BoxFit.cover,
             colorFilter: ColorFilter.mode(
-              Colors.black.withOpacity(0.25),
+              Colors.black.withValues(alpha: 0.25),
               BlendMode.darken,
             ),
           ),
@@ -475,7 +476,7 @@ class _FeedScreenState extends State<FeedScreen> {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -506,7 +507,7 @@ class _FeedScreenState extends State<FeedScreen> {
                         ),
                       );
                     },
-                    errorBuilder: (_, __, ___) => Container(
+                    errorBuilder: (_, _, _) => Container(
                       height: 160,
                       color: const Color(0xFFF0F0F0),
                       child: const Icon(Icons.broken_image, size: 40),
@@ -615,7 +616,7 @@ class _FeedScreenState extends State<FeedScreen> {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: AppColors.primaryBlue.withOpacity(0.1),
+                          color: AppColors.primaryBlue.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -692,123 +693,6 @@ class _FeedScreenState extends State<FeedScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  // ==================== BOTTOM NAV ====================
-  Widget _buildBottomNav() {
-    final items = [
-      {
-        'icon': Icons.format_list_bulleted_outlined,
-        'activeIcon': Icons.format_list_bulleted,
-        'label': 'Лента',
-        'route': '/feed', // <--- Добавлен маршрут
-      },
-      {
-        'icon': Icons.place_outlined,
-        'activeIcon': Icons.place,
-        'label': 'Карта',
-        'route': '/map', // <--- Добавлен маршрут
-      },
-      {
-        'icon': Icons.add,
-        'activeIcon': Icons.add,
-        'label': 'Создать',
-        'route': '/create', // <--- Добавлен маршрут
-      },
-      {
-        'icon': Icons.calendar_month_outlined,
-        'activeIcon': Icons.calendar_month,
-        'label': 'График',
-        'route': '/my', // <--- Добавлен маршрут
-      },
-      {
-        'icon': Icons.person_outline,
-        'activeIcon': Icons.person,
-        'label': 'Профиль',
-        'route': '/profile', // <--- Добавлен маршрут
-      },
-    ];
-
-    return SafeArea(
-      top: false,
-      child: Container(
-        margin: const EdgeInsets.only(left: 40, right: 40, bottom: 16),
-        height: 60,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(30), // Капсула
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.primaryBlue.withOpacity(0.5), // Мягкая тень
-              blurRadius: 20, // Небольшое размытие
-              offset: const Offset(0, 5), // Смещение чуть ниже панели
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: List.generate(items.length, (index) {
-            final isSelected = _navIndex == index;
-            return GestureDetector(
-              onTap: () {
-                setState(() => _navIndex = index);
-
-                // Переход, если это не текущий экран
-                final route = items[index]['route'] as String;
-                // Проверка, чтобы не пушить поверх текущего экрана (опционально)
-                // В простом случае просто пушим:
-                if (route != '/feed') {
-                  // Предполагаем, что FeedScreen - это текущий
-                  Navigator.pushNamed(context, route);
-                }
-              },
-              behavior: HitTestBehavior.opaque,
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 250),
-                curve: Curves.easeInOut,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? AppColors.primaryBlue.withOpacity(0.1)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(25),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      isSelected
-                          ? items[index]['activeIcon'] as IconData
-                          : items[index]['icon'] as IconData,
-                      color: isSelected
-                          ? AppColors.primaryBlue
-                          : AppColors.grey,
-                      size: 24,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      items[index]['label'] as String,
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: isSelected
-                            ? FontWeight.bold
-                            : FontWeight.w500,
-                        color: isSelected
-                            ? AppColors.primaryBlue
-                            : AppColors.grey,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }),
-        ),
       ),
     );
   }
