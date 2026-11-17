@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-
 import '../config/app_config.dart';
 import '../config/app_colors.dart';
-import '../widgets/bottom_menu.dart';
-
 import 'dart:ui';
 
 class ProfileScreen extends StatelessWidget {
@@ -13,71 +10,48 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Stack(
-        children: [
-          // 1. ОСНОВНОЙ КОНТЕНТ
-          SafeArea(
-            bottom: false,
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: AppConfig.maxWidth),
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    return SingleChildScrollView(
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          minHeight: constraints.maxHeight,
-                        ),
-                        child: IntrinsicHeight(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              // --- 1. ШАПКА ПРОФИЛЯ ---
-                              _buildHeader(),
+      // Убрали Stack и BottomNavBar
+      body: SafeArea(
+        bottom: false,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: AppConfig.maxWidth),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight,
+                    ),
+                    child: IntrinsicHeight(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // --- 1. ШАПКА ПРОФИЛЯ ---
+                          _buildHeader(),
 
-                              const SizedBox(height: 20),
+                          const SizedBox(height: 20),
 
-                              // --- 2. СТАТИСТИКА ---
-                              _buildStats(),
+                          // --- 2. СТАТИСТИКА ---
+                          _buildStats(),
 
-                              const SizedBox(height: 20),
+                          const SizedBox(height: 20),
 
-                              // --- 3. СПИСОК НАСТРОЕК ---
-                              _buildSettingsList(context),
+                          // --- 3. СПИСОК НАСТРОЕК ---
+                          _buildSettingsList(context),
 
-                              // Отступ снизу, чтобы последний элемент не прятался за меню
-                              const SizedBox(height: 120),
-                            ],
-                          ),
-                        ),
+                          // Отступ снизу, чтобы последний элемент не прятался за меню
+                          // (меню теперь в MainScreen, но отступ все равно нужен)
+                          const SizedBox(height: 120),
+                        ],
                       ),
-                    );
-                  },
-                ),
-              ),
+                    ),
+                  ),
+                );
+              },
             ),
           ),
-
-          // 2. ПАРЯЩЕЕ МЕНЮ
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: AppConfig.maxWidth),
-                child: BottomNavBar(
-                  currentIndex: 4, // Индекс "Профиль" (5-я вкладка)
-                  onTap: (index) {
-                    if (index == 4) return;
-                    final route = BottomNavBar.items[index]['route'] as String;
-                    Navigator.pushNamed(context, route);
-                  },
-                ),
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -86,9 +60,8 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _buildHeader() {
     return Container(
-      height: 240, // Чуть больше по высоте, как вы просили
+      height: 240,
       decoration: const BoxDecoration(
-        // Оставляем градиент как фон
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -101,7 +74,7 @@ class ProfileScreen extends StatelessWidget {
       ),
       child: Stack(
         children: [
-          // 1. Декоративные круги на фоне (чтобы стекло было заметнее)
+          // 1. Декоративные круги на фоне
           Positioned(
             top: -40,
             right: -20,
@@ -134,21 +107,14 @@ class ProfileScreen extends StatelessWidget {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(24),
                 child: BackdropFilter(
-                  filter: ImageFilter.blur(
-                    sigmaX: 10,
-                    sigmaY: 10,
-                  ), // Сила размытия
+                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                   child: Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(
-                        alpha: 0.15,
-                      ), // Полупрозрачный белый
+                      color: Colors.white.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(24),
                       border: Border.all(
-                        color: Colors.white.withValues(
-                          alpha: 0.2,
-                        ), // Тонкая светлая рамка
+                        color: Colors.white.withValues(alpha: 0.2),
                         width: 1.5,
                       ),
                     ),
@@ -192,13 +158,10 @@ class ProfileScreen extends StatelessWidget {
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
                                 ),
-                                maxLines:
-                                    2, // <--- РАЗРЕШАЕМ ПЕРЕНОС НА 2 СТРОКИ
-                                overflow: TextOverflow
-                                    .ellipsis, // Если не влезет даже в 2 строки
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
                               ),
                               const SizedBox(height: 6),
-                              // Бейдж Premium
                               Row(
                                 children: [
                                   const Icon(
@@ -254,7 +217,6 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  /// Блок со статистикой (24, 10, 5)
   Widget _buildStats() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -299,7 +261,6 @@ class ProfileScreen extends StatelessWidget {
     return Container(height: 40, width: 1, color: Colors.grey.shade300);
   }
 
-  /// Список настроек — теперь в виде карточек, как в ленте
   Widget _buildSettingsList(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -330,7 +291,7 @@ class ProfileScreen extends StatelessWidget {
             context: context,
             title: 'Выход',
             icon: Icons.logout,
-            isDestructive: true, // Красный цвет для выхода
+            isDestructive: true,
             onTap: () => Navigator.pushNamed(context, '/logout'),
           ),
         ],
@@ -338,7 +299,6 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  /// Карточка одного пункта меню
   Widget _buildSettingCard({
     required BuildContext context,
     required String title,
@@ -379,7 +339,6 @@ class ProfileScreen extends StatelessWidget {
         ),
         child: Row(
           children: [
-            // Иконка
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
@@ -389,8 +348,6 @@ class ProfileScreen extends StatelessWidget {
               child: Icon(icon, color: color, size: 22),
             ),
             const SizedBox(width: 14),
-
-            // Текст
             Expanded(
               child: Text(
                 title,
@@ -401,8 +358,6 @@ class ProfileScreen extends StatelessWidget {
                 ),
               ),
             ),
-
-            // Стрелка
             Icon(
               Icons.arrow_forward_ios,
               size: 14,

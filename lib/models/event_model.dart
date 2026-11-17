@@ -6,9 +6,14 @@ class EventModel {
   final DateTime date;
   final double price;
   final String imageUrl;
+  final String? organizer;
   final bool isFeatured;
   final bool isOnline;
   final int attendeesCount;
+  final String? description;
+  final int maxParticipants;
+  final bool isAdults;
+  final String genderRestriction;
 
   const EventModel({
     required this.id,
@@ -18,19 +23,54 @@ class EventModel {
     required this.date,
     required this.price,
     required this.imageUrl,
+    this.organizer,
     this.isFeatured = false,
     this.isOnline = false,
     this.attendeesCount = 0,
+    this.description,
+    this.maxParticipants = 0,
+    this.isAdults = false,
+    this.genderRestriction = 'any',
   });
 
+  
   // --- Дата (например: "21 ИЮН") ---
   String get formattedDate {
     const months = [
-      'ЯНВ', 'ФЕВ', 'МАР', 'АПР', 'МАЙ', 'ИЮН',
-      'ИЮЛ', 'АВГ', 'СЕП', 'ОКТ', 'НОЯ', 'ДЕК',
+      'ЯНВ',
+      'ФЕВ',
+      'МАР',
+      'АПР',
+      'МАЙ',
+      'ИЮН',
+      'ИЮЛ',
+      'АВГ',
+      'СЕН',
+      'ОКТ',
+      'НОЯ',
+      'ДЕК',
     ];
     // const weekdays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
     return '${date.day} ${months[date.month - 1]}';
+  }
+
+  String get formattedDateAlt {
+    const months = [
+      'января',
+      'февраля',
+      'марта',
+      'апреля',
+      'мая',
+      'июня',
+      'июля',
+      'августа',
+      'сентября',
+      'октября',
+      'ноября',
+      'декабря',
+    ];
+
+    return '${date.day} ${months[date.month - 1]} ${date.year}';
   }
 
   // --- День недели (например: "Пн") ---
@@ -39,7 +79,7 @@ class EventModel {
     return weekdays[date.weekday - 1];
   }
 
-    // --- Время (например: "19:30") ---
+  // --- Время (например: "19:30") ---
   String get formattedTime {
     // padLeft(2, '0') добавляет ведущий ноль, если число однозначное (9 -> 09)
     final hours = date.hour.toString().padLeft(2, '0');
@@ -53,8 +93,12 @@ class EventModel {
     return '$formattedDate, $formattedTime';
   }
 
+  String get formattedDateTimeForEventlyCard {
+    return '${formattedDateAlt.toLowerCase()}, $formattedTime';
+  }
+
   String get formattedPrice {
     if (price == 0) return 'Бесплатно';
-    return 'от ${price.toStringAsFixed(0)} ₽';
+    return '${price.toStringAsFixed(0)} ₽';
   }
 }

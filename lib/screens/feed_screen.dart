@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 
 import '../config/app_colors.dart';
 import '../models/event_model.dart';
-import '../widgets/bottom_menu.dart';
+import '../widgets/date_badge.dart';
+
 
 class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});
@@ -15,7 +16,6 @@ class FeedScreen extends StatefulWidget {
 class _FeedScreenState extends State<FeedScreen> {
   final _searchController = TextEditingController();
   int _selectedFilter = 0;
-  int _navIndex = 0;
 
   final List<String> _filters = [
     'Тренды',
@@ -35,7 +35,7 @@ class _FeedScreenState extends State<FeedScreen> {
       location: 'Hyde Park, London',
       date: DateTime(2025, 6, 21, 12, 00),
       price: 85,
-      imageUrl: 'https://picsum.photos/seed/summer/800/600',
+      imageUrl: 'assets/images/front-image.jpg',
       isFeatured: true,
       attendeesCount: 1200,
     ),
@@ -46,7 +46,7 @@ class _FeedScreenState extends State<FeedScreen> {
       location: 'Парк Горького, Москва',
       date: DateTime(2025, 7, 12),
       price: 0,
-      imageUrl: 'https://picsum.photos/seed/run/800/600',
+      imageUrl: 'assets/images/front-image.jpg',
       attendeesCount: 340,
     ),
     EventModel(
@@ -56,7 +56,7 @@ class _FeedScreenState extends State<FeedScreen> {
       location: 'Приэльбрусье, КБР',
       date: DateTime(2025, 8, 3),
       price: 4500,
-      imageUrl: 'https://picsum.photos/seed/hike/800/600',
+      imageUrl: 'assets/images/front-image.jpg',
       attendeesCount: 45,
     ),
     EventModel(
@@ -66,7 +66,7 @@ class _FeedScreenState extends State<FeedScreen> {
       location: 'Онлайн',
       date: DateTime(2025, 7, 25),
       price: 1500,
-      imageUrl: 'https://picsum.photos/seed/csgo/800/600',
+      imageUrl: 'assets/images/front-image.jpg',
       isOnline: true,
       attendeesCount: 890,
     ),
@@ -77,7 +77,7 @@ class _FeedScreenState extends State<FeedScreen> {
       location: 'Bar 12, Москва',
       date: DateTime(2025, 6, 30),
       price: 800,
-      imageUrl: 'https://picsum.photos/seed/jazz/800/600',
+      imageUrl: 'assets/images/front-image.jpg',
     ),
   ];
 
@@ -87,78 +87,45 @@ class _FeedScreenState extends State<FeedScreen> {
     super.dispose();
   }
 
-  @override
+   @override
   Widget build(BuildContext context) {
     final featured = _events.firstWhere((e) => e.isFeatured);
     final upcoming = _events.where((e) => !e.isFeatured).toList();
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Stack(
-        children: [
-          // 1. Основной контент
-          SafeArea(
-            bottom: false,
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: AppConfig.maxWidth),
-                child: CustomScrollView(
-                  slivers: [
-                    SliverToBoxAdapter(child: _buildHeader()),
-                    SliverToBoxAdapter(child: _buildSearch()),
-                    SliverToBoxAdapter(child: _buildFilters()),
-                    const SliverToBoxAdapter(child: SizedBox(height: 10)),
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: _buildFeaturedCard(featured),
-                      ),
-                    ),
-                    SliverToBoxAdapter(child: _buildUpcomingHeader()),
-                    SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) => Padding(
-                          padding: const EdgeInsets.only(bottom: 16),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: _buildEventCard(upcoming[index]),
-                          ),
-                        ),
-                        childCount: upcoming.length,
-                      ),
-                    ),
-                    const SliverToBoxAdapter(child: SizedBox(height: 120)),
-                  ],
+    return SafeArea( // Убрали Scaffold, так как он есть в MainScreen
+      bottom: false,
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: AppConfig.maxWidth),
+          child: CustomScrollView(
+            slivers: [
+              SliverToBoxAdapter(child: _buildHeader()),
+              SliverToBoxAdapter(child: _buildSearch()),
+              SliverToBoxAdapter(child: _buildFilters()),
+              const SliverToBoxAdapter(child: SizedBox(height: 10)),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: _buildFeaturedCard(featured),
                 ),
               ),
-            ),
-          ),
-
-          // 2. Парящее меню поверх контента (ИСПРАВЛЕНО)
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: AppConfig.maxWidth),
-                child: BottomNavBar(
-                  currentIndex: _navIndex,
-                  onTap: (index) {
-                    if (index == _navIndex) {
-                      return; // Уже на этой вкладке — ничего не делаем
-                    }
-                    setState(() => _navIndex = index);
-                    Navigator.pushNamed(
-                      context,
-                      BottomNavBar.items[index]['route'] as String,
-                    );
-                  },
+              SliverToBoxAdapter(child: _buildUpcomingHeader()),
+              SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) => Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: _buildEventCard(upcoming[index]),
+                    ),
+                  ),
+                  childCount: upcoming.length,
                 ),
               ),
-            ),
+              const SliverToBoxAdapter(child: SizedBox(height: 120)),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -367,7 +334,7 @@ class _FeedScreenState extends State<FeedScreen> {
             ),
 
             // Дата
-            Positioned(top: 16, right: 16, child: _buildDateBadge(event)),
+            Positioned(top: 16, right: 16, child: DateBadge(event: event)),
 
             // Название и локация
             Positioned(
@@ -492,30 +459,15 @@ class _FeedScreenState extends State<FeedScreen> {
                   borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(20),
                   ),
-                  child: Image.network(
+                  child: Image.asset(
                     event.imageUrl,
                     height: 160,
                     width: double.infinity,
-                    fit: BoxFit.cover,
-                    loadingBuilder: (context, child, progress) {
-                      if (progress == null) return child;
-                      return Container(
-                        height: 160,
-                        color: const Color(0xFFF0F0F0),
-                        child: const Center(
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
-                      );
-                    },
-                    errorBuilder: (_, _, _) => Container(
-                      height: 160,
-                      color: const Color(0xFFF0F0F0),
-                      child: const Icon(Icons.broken_image, size: 40),
-                    ),
+                    fit: BoxFit.cover
                   ),
                 ),
                 // Дата
-                Positioned(top: 12, right: 12, child: _buildDateBadge(event)),
+                Positioned(top: 12, right: 12, child: DateBadge(event: event)),
                 // Цена
                 Positioned(
                   bottom: 12,
@@ -636,63 +588,6 @@ class _FeedScreenState extends State<FeedScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildDateBadge(EventModel event) {
-    return Container(
-      width: 60, // Компактная ширина
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
-      decoration: BoxDecoration(
-        color: AppColors.primaryBlackSea,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // --- ВЕРХНЯЯ ЧАСТЬ: Дата ---
-          Text(
-            event.formattedDate.split(' ')[0], // День (например "21")
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-              height: 1,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            event.formattedDate.split(' ')[1], // Месяц (например "JUN")
-            style: const TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
-              letterSpacing: 0.5,
-            ),
-          ),
-
-          // --- ЦЕНТР: Горизонтальная белая линия ---
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6),
-            child: Container(
-              height: 1.5,
-              width: 30, // Ширина линии (можно сделать double.infinity для линии во всю ширину)
-              color: Colors.white,
-            ),
-          ),
-
-          //--- НИЖНЯЯ ЧАСТЬ: Время ---
-          Text(
-            event.formattedTime, // Например "19:30"
-            style: const TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-              height: 1,
-            ),
-          ),
-        ],
       ),
     );
   }

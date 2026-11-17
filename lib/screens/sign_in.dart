@@ -163,7 +163,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       ),
                                       validator: (value) {
                                         if (value == null || value.isEmpty) {
-                                          return 'Введите email';
+                                          return 'Введите username';
                                         }
                                         return null;
                                       },
